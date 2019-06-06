@@ -43,14 +43,18 @@ namespace {
 
 void Run() {
   constexpr double kTfBufferCacheTimeInSeconds = 1e6;
-  tf2_ros::Buffer tf_buffer{::tf2::durationFromSec(kTfBufferCacheTimeInSeconds)};
-  tf2_ros::TransformListener tf(tf_buffer);
+  //tf2_ros::Buffer tf_buffer{::tf2::durationFromSec(kTfBufferCacheTimeInSeconds)};
+  rclcpp::Clock::SharedPtr clock;
+  tf2_ros::Buffer* tf_buffer = new tf2_ros::Buffer(clock, tf2::durationFromSec(kTfBufferCacheTimeInSeconds), false);
+  //tf2_ros::TransformListener tf(tf_buffer);
+  tf2_ros::TransformListener tf(*tf_buffer, false);
   NodeOptions node_options;
   TrajectoryOptions trajectory_options;
   std::tie(node_options, trajectory_options) =
       LoadOptions(FLAGS_configuration_directory, FLAGS_configuration_basename);
 
-  Node node(node_options, &tf_buffer);
+  //Node node(node_options, &tf_buffer);
+  Node node(node_options, tf_buffer);
   if (!FLAGS_map_filename.empty()) {
     node.LoadMap(FLAGS_map_filename);
   }
